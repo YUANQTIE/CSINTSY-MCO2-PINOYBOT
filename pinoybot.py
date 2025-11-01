@@ -194,7 +194,7 @@ def tag_language(tokens: List[str]) -> List[str]:
     for d, l in zip(training_data, training_targets):
         print(d, "is to", l)
 
-    vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(1, 4))
+    vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(2, 4))
     matrix = vectorizer.fit_transform(training_data)
 
     model = MultinomialNB()
@@ -231,4 +231,5 @@ if __name__ == "__main__":
     example_tokens = ["flexibility", "see", "."]
     print("Tokens:", example_tokens)
     tags = tag_language(example_tokens)
+
     print(tags)
