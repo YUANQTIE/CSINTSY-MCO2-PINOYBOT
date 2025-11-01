@@ -10,7 +10,9 @@ Model training and feature extraction should be implemented in a separate script
 
 import pandas
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+#from sklearn.model_selection import train_test_split
 import os
 import pickle
 from typing import List
@@ -27,9 +29,18 @@ def tag_language(tokens: List[str]) -> List[str]:
     # 1. Load your trained model from disk (e.g., using pickle or joblib)
     #    Example: with open('trained_model.pkl', 'rb') as f: model = pickle.load(f)
     #    (Replace with your actual model loading code)
-    columns = pandas.read_csv('[CSINTSY] GRP2_MCO2_DataSet.csv')
+
+    def is_numeric(value):
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
+    columns = pandas.read_csv('[CSINTSY]GRP2_MCO2_DataSet.csv')
     word_id = columns['word_id']
     word = columns['word']
+    word = [str(w) for w in word]
     label = columns['label']  
     is_correct = columns['is_correct'] 
     special_tags = columns['special_tags'] 
@@ -39,32 +50,136 @@ def tag_language(tokens: List[str]) -> List[str]:
 
     english_words = []
     filipino_words = []
+    english_NEs = []
+    filipino_NEs = []
+    english_ABBs = []
+    filipino_ABBs = []
+    english_ABB_NEs = []
+    filipino_ABB_NEs = []
+    code_switches = []
+    unk_NEs = []
+    unk_EXPRs = []
+
+    training_data = []
+    training_targets = []
 
     for i in range(0 , len(word)):
-        print(word_id[i], " ", word[i], " ", label[i], " ", special_tags[i], " ",  is_correct[i])
-        if not is_correct[i]:
-            print(corrected_label[i], " ", corrected_special_tags[i])
-            if is_dirty[i]:
-                print(" IM DIRTY")
-        
-        if label[i] == "ENG" and is_correct[i]:
-            english_words.append(word[i])
-        
-        if label[i] == "FIL" and is_correct[i]:
-            filipino_words.append(word[i])
 
-    print("English Words from data set: ")
+        if is_correct[i]:
+            if label[i] == "ENG":
+                if special_tags[i] == "NE": 
+                    english_NEs.append(word[i])
+                    training_targets.append("ENG_NE")
+                    training_data.append(word[i])  
+                elif special_tags[i] == "ABB_NE":
+                    english_ABB_NEs.append(word[i])
+                    training_targets.append("ENG_ABB_NE")
+                    training_data.append(word[i])  
+                elif special_tags[i] == "ABB":
+                    english_ABBs.append(word[i])
+                    training_targets.append("ENG_ABB")
+                    training_data.append(word[i])  
+                else:
+                    english_words.append(word[i])
+                    training_targets.append("ENG")
+                    training_data.append(word[i])  
+            
+            elif label[i] == "FIL":
+                if special_tags[i] == "NE": 
+                    filipino_NEs.append(word[i])
+                    training_targets.append("FIL_NE")
+                    training_data.append(word[i])  
+                elif special_tags[i] == "ABB_NE":
+                    filipino_ABB_NEs.append(word[i])
+                    training_targets.append("FIL_ABB_NE")
+                    training_data.append(word[i])  
+                elif special_tags[i] == "ABB":
+                    filipino_ABBs.append(word[i])
+                    training_targets.append("FIL_ABB")
+                    training_data.append(word[i])  
+                else:
+                    filipino_words.append(word[i])
+                    training_targets.append("FIL")
+                    training_data.append(word[i])  
+            
+            else:
+                if special_tags[i] == "EXPR":
+                    unk_EXPRs.append(word[i])
+                    training_targets.append("UNK_EXPR")
+                    training_data.append(word[i])  
+                elif special_tags[i] == "NE":
+                    unk_NEs.append(word[i])
+                    training_targets.append("UNK_NE")
+                    training_data.append(word[i])  
+                
         
-    for wor in english_words:
-        print(wor)
+        else:
+            if corrected_label[i] == "ENG":
+                if corrected_special_tags[i] == "NE": 
+                    english_NEs.append(word[i])
+                    training_targets.append("ENG_NE")
+                    training_data.append(word[i])  
+                elif corrected_special_tags[i] == "ABB_NE":
+                    english_ABB_NEs.append(word[i])
+                    training_targets.append("ENG_ABB_NE")
+                    training_data.append(word[i])  
+                elif corrected_special_tags[i] == "ABB":
+                    english_ABBs.append(word[i])
+                    training_targets.append("ENG_ABB")
+                    training_data.append(word[i])  
+                else:
+                    english_words.append(word[i])
+                    training_targets.append("ENG")
+                    training_data.append(word[i])  
+            
+            elif corrected_label[i] == "FIL":
+                if corrected_special_tags[i] == "NE": 
+                    filipino_NEs.append(word[i])
+                    training_targets.append("FIL_NE")
+                    training_data.append(word[i])  
+                elif corrected_special_tags[i] == "ABB_NE":
+                    filipino_ABB_NEs.append(word[i])
+                    training_targets.append("FIL_ABB_NE")
+                    training_data.append(word[i])  
+                elif corrected_special_tags[i] == "ABB":
+                    filipino_ABBs.append(word[i])
+                    training_targets.append("FIL_ABB")
+                    training_data.append(word[i])  
+                elif corrected_special_tags[i] == "CS":
+                    code_switches.append(word[i])
+                    training_targets.append("FIL_CS")
+                    training_data.append(word[i])  
+                else:
+                    filipino_words.append(word[i])
+                    training_targets.append("FIL")
+                    training_data.append(word[i])  
+            
+            else:
+                if corrected_special_tags[i] == "EXPR":
+                    unk_EXPRs.append(word[i])
+                    training_targets.append("UNK_EXPR")
+                    training_data.append(word[i])  
+                elif corrected_special_tags[i] == "NE":
+                    unk_NEs.append(word[i])
+                    training_targets.append("UNK_NE") 
+                    training_data.append(word[i])  
     
-    print("Filipino words from data set: ")
+    print(len(training_data))
+    print(len(training_targets))
 
-    for wor in filipino_words:
-        print(wor)
-
-    # word length, letters, substrings as features
-    # labels as targets
+    
+    
+    print("English Words: ", english_words)
+    #print("\n\nFilipino Words: ",filipino_words)
+    print("\n\nEnglish NE Words: ",english_NEs)
+    #print("\n\nFilipino Ne Words: ",filipino_NEs)
+    #print("\n\nEnglish ABB Words: ",english_ABBs)
+    #print("\n\nFilipino ABB Words: ",filipino_ABBs)
+    #print("\n\nEnglish ABB NE Words: ",english_ABB_NEs)
+    #print("\n\nFilipino ABB NE Words: ",filipino_ABB_NEs)
+    #print("\n\nCode Switches: ",code_switches)
+    #print("\n\nUNK NE: ",unk_NEs)
+    #print("\n\nUNK EXpre: ",unk_EXPRs)
 
     #
     #with open('model.pk1', 'rb') as f:
@@ -74,8 +189,30 @@ def tag_language(tokens: List[str]) -> List[str]:
     # 2. Extract features from the input tokens to create the feature matrix
     #    Example: features = ... (your feature extraction logic here)
 
+    training_data = [str(w) for w in training_data]
+
+    for d, l in zip(training_data, training_targets):
+        print(d, "is to", l)
+
+    vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(1, 4))
+    matrix = vectorizer.fit_transform(training_data)
+
+    model = MultinomialNB()
+    model.fit(matrix, training_targets)
+
+    preds = []
+
     # 3. Use the model to predict the tags for each token
     #    Example: predicted = model.predict(features)
+
+    for tok in tokens: 
+        if not tok.isalpha() or is_numeric(tok): #brute force nalang yung mga symbols and numbers
+            preds.append("OTH")
+        else:
+            X_new = vectorizer.transform([tok])
+            prediction = model.predict(X_new)
+            print(prediction)
+
 
     # 4. Convert the predictions to a list of strings ("ENG", "FIL", or "OTH")
     #    Example: tags = [str(tag) for tag in predicted]
@@ -87,11 +224,11 @@ def tag_language(tokens: List[str]) -> List[str]:
     # the tag_language function is retained and correctly accomplishes the expected task.
 
     # Currently, the bot just tags every token as FIL. Replace this with your more intelligent predictions.
-    return ['FIL' for i in tokens]
+    return preds
 
 if __name__ == "__main__":
     # Example usage
-    example_tokens = ["Love", "kita", "."]
+    example_tokens = ["flexibility", "see", "."]
     print("Tokens:", example_tokens)
     tags = tag_language(example_tokens)
     print(tags)
