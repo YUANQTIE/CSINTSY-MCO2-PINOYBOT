@@ -56,10 +56,6 @@ def tag_language(tokens: List[str]) -> List[str]:
     for tok in tokens: 
         if not tok.isalpha() or is_numeric(tok): #brute force nalang yung mga symbols and numbers
             preds.append("OTH")
-        else:
-            X_new = vectorizer.transform([tok])
-            prediction = model.predict(X_new)
-            preds.append(str(prediction[0]))
 
 
     # 4. Convert the predictions to a list of strings ("ENG", "FIL", or "OTH")
@@ -79,9 +75,5 @@ if __name__ == "__main__":
     example_tokens = ["di", "see", ".", "commentator", "JOIJDIOEWJIOFEJIFWEIOFJOFIUERHJKFLEJKRWOIKDLFD", "HAHAHAHAHHAHAHHHAH", "9343", "lolz", "mapansin"]
     print("Tokens:", example_tokens)
     tags = tag_language(example_tokens)
+
     print(tags)
-    
-
-    train_data, test_data, train_label, test_label = train_test_split(training_data, training_targets, test_size=0.15, random_state=1)
-
-    train_data, validation_data, train_label, validation_label = train_test_split(train_data, train_label, test_size=15.0/85.0, random_state=1)
