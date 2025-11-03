@@ -215,17 +215,14 @@ clf.fit(x, y)
 
 def get_features(word):
     f1 = len(word)
-    f5 = 1 if word[0].isupper() else 0  # simpler for single word
-    f6 = 0  # can't check license plate with single word
+    f5 = 1 if word[0].isupper() else 0
+    f6 = 0  
     f7 = get_c_to_v_ratio(word)
     f8 = 1 if has_nonfil_character(word) else 0
     f9 = 1 if has_consecutive_character(word) else 0
     f10 = 1 if has_number(word) else 0
     f11 = 1 if word.isupper() else 0
     return [f1, f5, f6, f7, f8, f9, f10, f11]
-
-
-# === Predicting new words ===
 
 
 predictions = []
