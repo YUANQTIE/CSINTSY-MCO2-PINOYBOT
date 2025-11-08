@@ -483,13 +483,16 @@ for model in models:
     preds = model.predict(X_test)
 
     predictions = []
-    for pred in preds:
-        if pred in ["ENG", "ENG-NE"]:
-            predictions.append("ENG")
-        elif pred in ["FIL", "FIL-NE", "FIL-CS"]:
-            predictions.append("FIL")
-        else:
+    for word, pred in zip(yuan_data, preds):
+        if is_numeric(word) or is_symbolic(word):
             predictions.append("OTH")
+        else:
+            if pred in ["ENG", "ENG-NE"]:
+                predictions.append("ENG")
+            elif pred in ["FIL", "FIL-NE", "FIL-CS"]:
+                predictions.append("FIL")
+            else:
+                predictions.append("OTH")
 
     feature_names = [
         "Feature 1", "Feature 2", "Feature 3", "Feature 4",
