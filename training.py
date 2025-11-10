@@ -226,7 +226,7 @@ for set_name, data_group, label_group in testing:
                 elif pred in ["FIL-ABB", "FIL", "CS"]:
                     pred = "FIL"
                 else:
-                    pred = "OTH"
+                   pred = "OTH"
 
                 predictions.append(pred)
 
