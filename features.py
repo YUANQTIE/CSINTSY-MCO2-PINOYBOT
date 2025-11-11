@@ -74,19 +74,8 @@ def feature_8(word):
     
     return count / len(word)
     
-# Feature 9: Ratio of consonants to word length. Higher ratio would indicate English word
+# Feature 9: Maximum number of occurrences of a single alphabet character in the word used to anticipate repeated characters in EXPRs or ABBs
 def feature_9(word):
-    count = 0
-    word = word.lower()
-    vowels = ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"]
-    for char in word:
-        if char in vowels:
-            count += 1
-    
-    return count / len(word)
-
-# Feature 10: Maximum number of occurrences of a single alphabet character in the word used to anticipate repeated characters in EXPRs or ABBs
-def feature_10(word):
     alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
     encountered = [0] * 26
     
@@ -97,6 +86,47 @@ def feature_10(word):
 
     return max(encountered)
 
+# Feature 10: Checking common English articles
+def feature_10(word):
+    word = word.lower()
+    common_articles = ["i", "i'm", "she", "he", "not" "like", "you", "him", "here", "here", "they", "he", "the", "a", "an", "and", "but", "or", "for", "nor", "so", "yet", "by", "in", "of", "on", "to", "up", "as", "is", "it", "was", "are", "that", "there", "this"]
+    
+    if word in common_articles:
+        return 1
+    else:
+        return 0
+    
+# Feature 11: Checking common Filipino articles
+def feature_11(word):
+    word = word.lower()
+    common_articles = ["tsaka", "sa", "mga", "siya", "ikaw", "ni", "kay", "kaysa", "dahil", "upang", "para", "o", "pero", "subalit", "kung", "kapag", "habang", "dapat", "ang"]
+    
+    if word in common_articles:
+        return 1
+    else:
+        return 0
+
+# Feature 12: Checks if previous tag is English
+def feature_12(previous_tag):
+    if previous_tag == "ENG":
+        return 1
+    else:
+        return 0
+
+# Feature 13: Checks if previous tag is Filipino
+def feature_13(previous_tag):
+    if previous_tag == "FIL":
+        return 1
+    else:
+        return 0
+
+# Feature 14: Checks if previous tag is neither English or Filipino
+def feature_14(previous_tag):
+    if previous_tag == "OTH":
+        return 1
+    else:
+        return 0
+
 # Checker for numeric tokens
 def is_numeric(value):
     try:
@@ -106,7 +136,6 @@ def is_numeric(value):
         return 0
 
 # Checker for symbolic tokens 
-
 def is_symbolic(word):
     for char in word:
         if char.isalpha():
@@ -127,28 +156,8 @@ def is_alpha_numeric(word):
             digit_present = True
     
     return char_present and digit_present
-
-# Checker for common English articles and pronouns
-def is_common_english_article(word):
-    word = word.lower()
-    common_articles = ["i", "i'm", "she", "he", "not" "like", "you", "him", "here", "here", "they", "he", "the", "a", "an", "and", "but", "or", "for", "nor", "so", "yet", "by", "in", "of", "on", "to", "up", "as", "is", "it", "was", "are", "that", "there", "this"]
     
-    if word in common_articles:
-        return True
-    else:
-        return False
-    
-# Checker for common English articles and pronouns
-def is_common_filipino_article(word):
-    word = word.lower()
-    common_articles = ["tsaka", "sa", "at", "mga", "siya", "ikaw", "ni", "kay", "kaysa", "dahil", "upang", "para", "o", "pero", "subalit", "kung", "kapag", "habang", "dapat", "ang"]
-    
-    if word in common_articles:
-        return True
-    else:
-        return False
-    
-def get_features(word, previous_word=None):
+def get_features(word, previous_tag=None):
     f1 = feature_1(word)
     f2 = feature_2(word)
     f3 = feature_3(word)
@@ -158,13 +167,12 @@ def get_features(word, previous_word=None):
     f7 = feature_7(word)
     f8 = feature_8(word)
     f9 = feature_9(word)
-    #f10 = feature_10(word)
-    #f11 = feature_11(word)
-    #f12 = feature_12(word)
-    #f13 = feature_13(word)
-    #f14 = feature_14(word)
-    #f15 = feature_15(word)
-    
-    features = [f1, f2, f3, f4, f5, f6, f7, f8, f9]
+    f10 = feature_10(word)
+    f11 = feature_11(word)
+    #f12 = feature_12(previous_tag)
+    #f13 = feature_13(previous_tag)
+    #f14 = feature_14(previous_tag)
+
+    features = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11]
 
     return features
