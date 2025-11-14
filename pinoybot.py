@@ -8,12 +8,9 @@ This module provides the main tagging function for the PinoyBot project, which i
 Model training and feature extraction should be implemented in a separate script. The trained model should be saved and loaded here for prediction.
 """
 
-import pandas
 from features import *
 
 
-#from sklearn.model_selection import train_test_split
-import os
 import pickle
 import numpy
 from typing import List
@@ -36,21 +33,11 @@ def tag_language(tokens: List[str]) -> List[str]:
         if is_numeric(tokens[i]) or is_symbolic(tokens[i]) or is_alpha_numeric(tokens[i]):
             tags.append("OTH")
         else:
-            if i == 0:
-                prev_word = None
-            else:
-                prev_word = tags[i-1]
-            features = get_features(tokens[i], prev_word)
+            features = get_features(tokens[i])
             pred = model.predict(numpy.array([features]))[0] 
             tags.append(pred)
 
     tags = [str(tag) for tag in tags]
     return tags
 
-if __name__ == "__main__":
-    # Example usage
-    example_tokens = ["Love", "kita", "."]
-    print("Tokens:", example_tokens)
-    tags = tag_language(example_tokens)
 
-    print(tags)

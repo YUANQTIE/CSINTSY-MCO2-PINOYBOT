@@ -89,7 +89,7 @@ def feature_9(word):
 # Feature 10: Checking common English articles
 def feature_10(word):
     word = word.lower()
-    common_articles = ["i", "i'm", "she", "he", "not" "like", "you", "him", "here", "here", "they", "he", "the", "a", "an", "and", "but", "or", "for", "nor", "so", "yet", "by", "in", "of", "on", "to", "up", "as", "is", "it", "was", "are", "that", "there", "this"]
+    common_articles = ["i", "i'm", "she", "he", "not" "like", "has", "have", "you", "him", "here", "here", "they", "he", "the", "a", "an", "and", "but", "or", "for", "nor", "so", "yet", "by", "in", "of", "on", "to", "up", "as", "is", "it", "was", "are", "that", "there", "this"]
     
     if word in common_articles:
         return 1
@@ -102,27 +102,6 @@ def feature_11(word):
     common_articles = ["tsaka", "sa", "mga", "siya", "ikaw", "ni", "kay", "kaysa", "dahil", "upang", "para", "o", "pero", "subalit", "kung", "kapag", "habang", "dapat", "ang"]
     
     if word in common_articles:
-        return 1
-    else:
-        return 0
-
-# Feature 12: Checks if previous tag is English
-def feature_12(previous_tag):
-    if previous_tag == "ENG":
-        return 1
-    else:
-        return 0
-
-# Feature 13: Checks if previous tag is Filipino
-def feature_13(previous_tag):
-    if previous_tag == "FIL":
-        return 1
-    else:
-        return 0
-
-# Feature 14: Checks if previous tag is neither English or Filipino
-def feature_14(previous_tag):
-    if previous_tag == "OTH":
         return 1
     else:
         return 0
@@ -157,7 +136,7 @@ def is_alpha_numeric(word):
     
     return char_present and digit_present
     
-def get_features(word, previous_tag=None):
+def get_features(word):
     f1 = feature_1(word)
     f2 = feature_2(word)
     f3 = feature_3(word)
@@ -169,9 +148,6 @@ def get_features(word, previous_tag=None):
     f9 = feature_9(word)
     f10 = feature_10(word)
     f11 = feature_11(word)
-    #f12 = feature_12(previous_tag)
-    #f13 = feature_13(previous_tag)
-    #f14 = feature_14(previous_tag)
 
     features = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11]
 

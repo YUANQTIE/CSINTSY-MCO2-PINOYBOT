@@ -1,22 +1,15 @@
 import pickle
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.naive_bayes import GaussianNB
-from sklearn.naive_bayes import ComplementNB
-from sklearn.naive_bayes import CategoricalNB
-from sklearn.naive_bayes import BernoulliNB
+from sklearn.metrics import classification_report
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree import ExtraTreeClassifier
-from sklearn.model_selection import cross_val_score
 import pandas
 import numpy
 from features import *
 
 # Loads the dataset using pandas csv reader
 columns = pandas.read_csv('[CSINTSY]GRP2_MCO2_DataSet.csv')
-sentence_id = [int(i) for i in columns['sentence_id']]
-word_id = [int(i) for i in columns['word_id']]
+#sentence_id = [int(i) for i in columns['sentence_id']]
+#word_id = [int(i) for i in columns['word_id']]
 word = [str(w) for w in columns['word']]
 label = [str(w) for w in columns['label']]
 special_tags = [str(i) for i in columns['special_tags']]
@@ -117,17 +110,14 @@ train_data, validation_data, train_label, validation_label = train_test_split(tr
 features_matrix = []
 
 for i in range(len(train_data)):
-    word = train_data[i]
-    if i == 0:
-        features_matrix.append(get_features(word))
-    else:
-        features_matrix.append(get_features(word, train_label[i-1]))
+    features_matrix.append(get_features(train_data[i]))
+
 
 X_train = numpy.array(features_matrix)
 y_train = numpy.array(train_label)
 
 # Decision Tree Classifier as the primary classifier to be used
-model = DecisionTreeClassifier(random_state=2) #specific state to have fixed results
+model = DecisionTreeClassifier(max_depth = 30, random_state=2) #specific state to have fixed results
 
 # Feature matrix and classifier combine to make the pipeline
 model.fit(X_train, y_train)
@@ -147,12 +137,7 @@ for set_name, data_group, label_group in testing:
         if is_numeric(data_group[i]) or is_symbolic(data_group[i]) or is_alpha_numeric(data_group[i]):
             predictions.append("OTH")
         else:
-            if i == 0:
-                prev_word = None
-            else:
-                prev_word = predictions[i-1] #Gets the prediction of the word before it, if there is a word before it.
-        
-            features = get_features(data_group[i], prev_word)
+            features = get_features(data_group[i])
 
             pred = model.predict(numpy.array([features]))[0] #Gets the prediction of the word
 
@@ -169,7 +154,7 @@ for set_name, data_group, label_group in testing:
         "Feature 8",
         "Feature 9",
         "Feature 10",
-        "Feature 11",
+        "Feature 11"
     ]
 
     # Prints the words that were labeled incorrectly
